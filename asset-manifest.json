@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/xml-to-pdf-converter/static/css/main.f855e6bc.css",
-    "main.js": "/xml-to-pdf-converter/static/js/main.9e762161.js",
+    "main.css": "/xml-to-pdf-converter/static/css/main.560be640.css",
+    "main.js": "/xml-to-pdf-converter/static/js/main.0a7cbcc1.js",
     "static/js/453.8915f79d.chunk.js": "/xml-to-pdf-converter/static/js/453.8915f79d.chunk.js",
+    "static/media/arial unicode ms.otf": "/xml-to-pdf-converter/static/media/arial unicode ms.36f3f3de2dc3a961de5a.otf",
     "index.html": "/xml-to-pdf-converter/index.html",
-    "main.f855e6bc.css.map": "/xml-to-pdf-converter/static/css/main.f855e6bc.css.map",
-    "main.9e762161.js.map": "/xml-to-pdf-converter/static/js/main.9e762161.js.map",
+    "main.560be640.css.map": "/xml-to-pdf-converter/static/css/main.560be640.css.map",
+    "main.0a7cbcc1.js.map": "/xml-to-pdf-converter/static/js/main.0a7cbcc1.js.map",
     "453.8915f79d.chunk.js.map": "/xml-to-pdf-converter/static/js/453.8915f79d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f855e6bc.css",
-    "static/js/main.9e762161.js"
+    "static/css/main.560be640.css",
+    "static/js/main.0a7cbcc1.js"
   ]
 }
