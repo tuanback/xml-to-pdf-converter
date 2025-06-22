@@ -28,14 +28,25 @@ function collectTasks(obj) {
 function App() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleFile = async (e) => {
     setError("");
     setPdfUrl(null);
+    setLoading(true);
     const file = e.target.files[0];
     if (!file) return;
 
     try {
+      // Load Google Font (Roboto)
+      const fontResponse = await fetch(
+        "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf"
+      );
+      if (!fontResponse.ok) {
+        throw new Error("Could not load font");
+      }
+      const fontBytes = await fontResponse.arrayBuffer();
+
       console.log("Starting XML parsing...");
       const xmlText = await file.text();
       const parser = new XMLParser({ ignoreAttributes: false });
@@ -62,14 +73,8 @@ function App() {
         console.log("Creating PDF document...");
         const pdfDoc = await PDFDocument.create();
 
-        // Register fontkit before embedding custom font
+        // Register fontkit and embed font
         pdfDoc.registerFontkit(fontkit);
-
-        // Embed the font
-        console.log("Embedding font...");
-        const fontBytes = await fetch("/arial unicode ms.otf").then((res) =>
-          res.arrayBuffer()
-        );
         const customFont = await pdfDoc.embedFont(fontBytes);
 
         let page = pdfDoc.addPage();
@@ -181,6 +186,8 @@ function App() {
     } catch (err) {
       console.error("Processing error:", err);
       setError(`Lỗi xử lý: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -194,6 +201,7 @@ function App() {
           type="file"
           accept=".xml"
           onChange={handleFile}
+          disabled={loading}
           style={{
             padding: "10px",
             border: "1px solid #ccc",
@@ -203,6 +211,10 @@ function App() {
           }}
         />
       </div>
+
+      {loading && (
+        <div style={{ marginTop: 16, color: "#666" }}>Đang xử lý...</div>
+      )}
 
       {error && (
         <div
