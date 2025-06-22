@@ -3,6 +3,29 @@ import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { XMLParser } from "fast-xml-parser";
 import "./App.css";
+import arialUnicodeMSFont from "./arial unicode ms.otf";
+
+// Clean and normalize text content
+function cleanText(text) {
+  if (!text) return "";
+  return text
+    .trim()
+    .replace(/\((<\d+>)\)/g, "$1")
+    .replace(/[<>]/g, "")
+    .replace(/&lt;/g, "")
+    .replace(/&gt;/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ");
+}
+
+// Split text into sub-questions, preserving the structure
+function splitQuestions(text) {
+  if (!text) return [];
+  // Split on parenthesized numbers, keeping the delimiters
+  const parts = text.split(/(?=\(\d+[\)\.])/).map((part) => part.trim());
+  // Remove empty parts and normalize
+  return parts.filter((part) => part && part.length > 0);
+}
 
 // Helper: Recursively collect all Task nodes from any object
 function collectTasks(obj) {
@@ -38,10 +61,8 @@ function App() {
     if (!file) return;
 
     try {
-      // Load Google Font (Roboto)
-      const fontResponse = await fetch(
-        "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf"
-      );
+      // Load Arial Unicode MS font
+      const fontResponse = await fetch(arialUnicodeMSFont);
       if (!fontResponse.ok) {
         throw new Error("Could not load font");
       }
@@ -78,7 +99,7 @@ function App() {
         const customFont = await pdfDoc.embedFont(fontBytes);
 
         let page = pdfDoc.addPage();
-        const { width, height } = page.getSize();
+        const { height } = page.getSize();
         let y = height - 40;
 
         console.log("Processing tasks...");
@@ -101,15 +122,76 @@ function App() {
 
             if (!questionText) continue;
 
+            // Add extra space between questions
+            if (questionCount > 0) y -= 10;
+
             questionCount++;
-            page.drawText(`Câu ${questionCount}: ${questionText}`, {
+            // Clean and split question text
+            const cleanedText = cleanText(questionText);
+            const subQuestions = splitQuestions(cleanedText);
+
+            const startY = y;
+
+            // Draw question number
+            page.drawText(`Câu ${questionCount}:`, {
               x: 40,
               y: y,
               size: 12,
               font: customFont,
               color: rgb(0, 0, 0),
             });
-            y -= 20;
+
+            if (subQuestions.length > 1) {
+              // Handle multiple sub-questions
+              y -= 20;
+
+              subQuestions.forEach((text, idx) => {
+                // Extract the question number if it exists
+                const match = text.match(/^\((\d+)[\)\.]\s*(.+)$/);
+                if (match) {
+                  const [_, num, content] = match;
+                  // Calculate text height based on content length and width
+                  const textLines = Math.ceil((content.length * 7) / 460); // Rough estimate of lines
+
+                  page.drawText(`(${num}) ${content}`, {
+                    x: 60,
+                    y: y,
+                    size: 12,
+                    font: customFont,
+                    color: rgb(0, 0, 0),
+                    maxWidth: 460,
+                  });
+
+                  // Adjust y based on text height
+                  y -= 20 * Math.max(1, textLines);
+                } else {
+                  page.drawText(text.trim(), {
+                    x: 60,
+                    y: y,
+                    size: 12,
+                    font: customFont,
+                    color: rgb(0, 0, 0),
+                    maxWidth: 460,
+                  });
+                  y -= 20;
+                }
+              });
+
+              // Add extra space after multi-part questions
+              y -= 10;
+            } else {
+              // Single question - draw on same line as question number
+              const textLines = Math.ceil((cleanedText.length * 7) / 420); // Rough estimate
+              page.drawText(cleanedText, {
+                x: 100,
+                y: startY,
+                size: 12,
+                font: customFont,
+                color: rgb(0, 0, 0),
+                maxWidth: 420,
+              });
+              y -= 20 * Math.max(1, textLines);
+            }
 
             // Process variants
             try {
@@ -121,29 +203,39 @@ function App() {
               }
               console.log(`Task ${idx + 1} has ${variants.length} variants`);
 
+              // Add some padding before answers
+              y -= 5;
+
               variants.forEach((variant, vIdx) => {
                 try {
                   let optionText = variant.PlainText || "";
                   if (!optionText.trim()) return;
 
+                  optionText = cleanText(optionText);
                   let isCorrect =
                     variant["@_CorrectAnswer"] === "True" ||
                     variant["@_CorrectAnswer"] === true ||
                     variant.CorrectAnswer === "True" ||
                     variant.CorrectAnswer === true;
 
+                  // Calculate answer text height
+                  const textLines = Math.ceil((optionText.length * 7) / 480);
+
                   page.drawText(
                     `${String.fromCharCode(65 + vIdx)}. ${optionText}` +
-                      (isCorrect ? " (Đúng)" : ""),
+                      (isCorrect ? " ★" : ""),
                     {
                       x: 60,
                       y: y,
                       size: 11,
                       font: customFont,
                       color: isCorrect ? rgb(0, 0.5, 0) : rgb(0, 0, 0),
+                      maxWidth: 480,
                     }
                   );
-                  y -= 16;
+
+                  // Adjust y based on answer text height
+                  y -= 18 * Math.max(1, textLines);
                 } catch (variantError) {
                   console.error(
                     `Error processing variant ${vIdx} of task ${idx + 1}:`,
@@ -158,7 +250,10 @@ function App() {
               );
             }
 
+            // Add spacing after answers
             y -= 10;
+
+            // Check if we need a new page
             if (y < 60) {
               console.log("Adding new page");
               y = height - 40;

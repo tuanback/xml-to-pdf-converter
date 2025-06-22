@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+@font-face {
+  font-family: "Arial Unicode MS";
+  src: url("./arial unicode ms.otf") format("opentype");
+}
+
+body {
+  font-family: "Arial Unicode MS", sans-serif;
+}
