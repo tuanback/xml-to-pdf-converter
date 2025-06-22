@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/XMLConverter/static/css/main.f855e6bc.css",
-    "main.js": "/XMLConverter/static/js/main.7e50b246.js",
-    "static/js/453.8915f79d.chunk.js": "/XMLConverter/static/js/453.8915f79d.chunk.js",
-    "index.html": "/XMLConverter/index.html",
-    "main.f855e6bc.css.map": "/XMLConverter/static/css/main.f855e6bc.css.map",
-    "main.7e50b246.js.map": "/XMLConverter/static/js/main.7e50b246.js.map",
-    "453.8915f79d.chunk.js.map": "/XMLConverter/static/js/453.8915f79d.chunk.js.map"
+    "main.css": "/xml-to-pdf-converter/static/css/main.f855e6bc.css",
+    "main.js": "/xml-to-pdf-converter/static/js/main.4169c6a6.js",
+    "static/js/453.8915f79d.chunk.js": "/xml-to-pdf-converter/static/js/453.8915f79d.chunk.js",
+    "index.html": "/xml-to-pdf-converter/index.html",
+    "main.f855e6bc.css.map": "/xml-to-pdf-converter/static/css/main.f855e6bc.css.map",
+    "main.4169c6a6.js.map": "/xml-to-pdf-converter/static/js/main.4169c6a6.js.map",
+    "453.8915f79d.chunk.js.map": "/xml-to-pdf-converter/static/js/453.8915f79d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.7e50b246.js"
+    "static/js/main.4169c6a6.js"
   ]
 }
